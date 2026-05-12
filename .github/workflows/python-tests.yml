@@ -7,13 +7,17 @@ on:
     branches: [ "main" ]
 
 jobs:
- check-server:
+  # Verify if the self-hosted runner is working correctly in the Lenovo server
+  check-server:
     runs-on: self-hosted
+    steps:
+      - name: Ping Lenovo
+        run: echo "The runner is ready in the Lenovo server!"
+
+  # Execute test in a clean environment with postgress sql service
   test:
     runs-on: ubuntu-latest
-
     services:
-      # Create a PostgreSQL service for testing purposes
       postgres:
         image: postgres:15
         env:
@@ -29,24 +33,24 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4 # Actualizado a v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run Pytest
-      env:
-        # Env variable for test to connect to the test bd
-        DATABASE_URL: postgresql://admin:password123@localhost:5432/fintrack_db_test
-        DB_USER: admin
-        DB_PASSWORD: password123
-        DB_NAME: fintrack_db_test
-      run: |
-        pytest
+      - name: Run Pytest
+        env:
+          DATABASE_URL: postgresql://admin:password123@localhost:5432/fintrack_db_test
+          DB_USER: admin
+          DB_PASSWORD: password123
+          DB_NAME: fintrack_db_test
+        run: |
+          pytest
