@@ -5,3 +5,5 @@ psycopg2-binary
 google-generativeai
 python-telegram-bot
 yfinance
+pytest
+httpx
