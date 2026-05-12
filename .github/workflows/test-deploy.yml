@@ -1,0 +1,19 @@
+name: Test de mi Infraestructura Local
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  check-server:
+    runs-on: self-hosted
+    steps:
+      - name: Clonar código
+        uses: actions/checkout@v4
+
+      - name: Verificar Servidor
+        run: |
+          echo "Hola! Estoy corriendo en la Lenovo de Rodrigo"
+          echo "Fecha actual: $(date)"
+          echo "Uso de memoria RAM:"
+          free -h
