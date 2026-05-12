@@ -16,7 +16,7 @@ jobs:
 
   # Execute test in a clean environment with postgress sql service
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     services:
       postgres:
         image: postgres:15
