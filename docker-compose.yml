@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # BD Service
+  db:
+    image: postgres:15
+    container_name: fintrack_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
+      POSTGRES_DB: ${DB_NAME:-fintrack_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # FastAPI Service
+  api:
+    build: .
+    container_name: fintrack_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password123}@db:5432/${DB_NAME:-fintrack_db}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
