@@ -7,6 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
+ check-server:
+    runs-on: self-hosted
   test:
     runs-on: ubuntu-latest
 
