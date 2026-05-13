@@ -23,7 +23,7 @@ jobs:
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: fintrack_db_psw
-          POSTGRES_DB: fintrack_db_test
+          POSTGRES_DB: fintrack_db
         ports:
           - 5432:5432
         options: >-
@@ -48,9 +48,9 @@ jobs:
 
       - name: Run Pytest
         env:
-          DATABASE_URL: postgresql://admin:fintrack_db_psw@localhost:5432/fintrack_db_test
+          DATABASE_URL: postgresql://admin:fintrack_db_psw@localhost:5432/fintrack_db
           DB_USER: admin
           DB_PASSWORD: fintrack_db_psw
-          DB_NAME: fintrack_db_test
+          DB_NAME: fintrack_db
         run: |
           pytest
