@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 
     DB_USER: str = "admin"
-    DB_PASSWORD: str = "password"
+    DB_PASSWORD: str = "fintrack_db_psw"
     DB_NAME: str = "fintrack_db"
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
