@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 postgres_data/
 .venv/
+
+**/__pycache__/
+
+
+# Do not ignore migrations/versions/
+migrations/*.pyc
