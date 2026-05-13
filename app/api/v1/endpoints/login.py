@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.core import security
+from app.core.errors import ErrorCode
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.schemas.token import Token
@@ -21,7 +22,7 @@ def login_access_token(
     if not user or not security.verify_password(
         form_data.password, user.hashed_password
     ):
-        raise HTTPException(status_code=400, detail="Email o contraseña incorrectos")
+        raise HTTPException(status_code=400, detail=ErrorCode.INVALID_CREDENTIALS)
 
     return {
         "access_token": security.create_access_token(user.id),
@@ -33,9 +34,7 @@ def login_access_token(
 def create_user(*, db: Session = Depends(deps.get_db), user_in: UserCreate):
     user = db.query(User).filter(User.email == user_in.email).first()
     if user:
-        raise HTTPException(
-            status_code=400, detail="Este email ya está registrado en el sistema."
-        )
+        raise HTTPException(status_code=400, detail=ErrorCode.EMAIL_ALREADY_EXISTS)
 
     db_obj = User(
         email=user_in.email,
