@@ -15,5 +15,7 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-UserBase.model_rebuild()
-UserResponse.model_rebuild()
+class UserCreate(BaseModel):
+    email: EmailStr
+    username: str
+    password: str
