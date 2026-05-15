@@ -3,7 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from app.core import security
+from app.core.config import settings
+from app.core.errors import ErrorCode
 from app.db.session import SessionLocal
 from app.models.user import User
 from app.schemas.token import TokenData
@@ -24,12 +25,12 @@ def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No se pudieron validar las credenciales",
+        detail=ErrorCode.INVALID_TOKEN_CREDENTIALS,
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         payload = jwt.decode(
-            token, security.SECRET_KEY, algorithms=[security.ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         user_id: str = payload.get("sub")
         if user_id is None:

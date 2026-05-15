@@ -4,7 +4,7 @@ class ErrorCode:
     INACTIVE_USER = "User account is inactive."
     TOKEN_EXPIRED = "The token has expired. Please log in again."
     PASSWORD_TOO_LONG = "Password too long."
-
+    INVALID_TOKEN_CREDENTIALS = "Could not validate credentials."
     EMAIL_ALREADY_EXISTS = "Mail already registered."
     USER_NOT_FOUND = "User not found."
 

@@ -15,7 +15,7 @@ class TransactionBase(BaseModel):
 
 
 class TransactionCreate(TransactionBase):
-    user_id: int
+    pass
 
 
 class TransactionUpdate(BaseModel):

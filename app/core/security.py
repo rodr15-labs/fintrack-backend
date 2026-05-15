@@ -21,6 +21,8 @@ def get_password_hash(password: str) -> str:
 
 
 def create_access_token(subject: Union[str, Any]) -> str:
+    # [ASRF] TODO: usedatetime.now(timezone.utc)
+
     expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(
