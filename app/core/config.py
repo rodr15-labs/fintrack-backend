@@ -1,12 +1,8 @@
-import os
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-ENV_FILE = ".env.test" if os.getenv("TESTING") == "1" else ".env"
 
 
 class Settings(BaseSettings):
-
+    ENV_FILE: str = ".env"
     TESTING: bool = False
     DB_USER: str = "admin"
     DB_PASSWORD: str = "fintrack_db_psw"
