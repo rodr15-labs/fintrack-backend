@@ -94,6 +94,8 @@ jobs:
       # Run Alembic migrations
       # --------------------------------------
       - name: Run migrations
+        env:
+          TESTING: true
         run: |
           PYTHONPATH=. alembic upgrade head
 
