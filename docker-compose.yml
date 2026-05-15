@@ -1,32 +1,65 @@
+name: fintrack
+
 services:
-  # BD Service
-  db:
-    profiles: ["dev", "full"]
+
+  # =========================
+  # Development Database
+  # =========================
+  postgres-dev:
+    profiles: ["dev"]
+
     image: postgres:15
-    container_name: fintrack_db
-    restart: always
+
+    container_name: fintrack-postgres-dev
+
+    restart: unless-stopped
+
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: fintrack_db_psw
+      POSTGRES_DB: fintrack_db
+
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-  # FastAPI Service
-  api:
-    build: .
-    profiles: ["full"]
-    container_name: fintrack_api
-    ports:
-      - "8000:8000"
     volumes:
-      - .:/app
+      - postgres_dev_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d fintrack_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =========================
+  # Testing Database
+  # =========================
+  postgres-test:
+    profiles: ["dev","test"]
+
+    image: postgres:15
+
+    container_name: fintrack-postgres-test
+
+    restart: unless-stopped
+
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password123}@db:5432/${DB_NAME:-fintrack_db}
-    depends_on:
-      - db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: fintrack_db_psw
+      POSTGRES_DB: fintrack_db_test
+
+    ports:
+      - "5433:5432"
+
+    # Ephemeral database for tests
+    tmpfs:
+      - /var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d fintrack_db_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres_data:
+  postgres_dev_data:
