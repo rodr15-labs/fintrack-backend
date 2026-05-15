@@ -19,6 +19,9 @@ jobs:
       - name: Ping Lenovo
         run: echo "The runner is ready in the Lenovo server!"
 
+      -name: Check Docker version
+        run: docker --version
+
   # Run tests
   test:
     runs-on: self-hosted
