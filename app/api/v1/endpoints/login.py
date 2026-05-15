@@ -19,9 +19,7 @@ def login_access_token(
 ):
     user = db.query(User).filter(User.email == form_data.username).first()
 
-    if not user or not security.verify_password(
-        form_data.password, user.hashed_password
-    ):
+    if not user or not security.verify_password(form_data.password, user.password):
         raise HTTPException(status_code=400, detail=ErrorCode.INVALID_CREDENTIALS)
 
     return {
@@ -39,11 +37,14 @@ def create_user(*, db: Session = Depends(deps.get_db), user_in: UserCreate):
     db_obj = User(
         email=user_in.email,
         username=user_in.username,
-        hashed_password=get_password_hash(user_in.password),
+        password=get_password_hash(user_in.password),
         is_active=True,
     )
-
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    try:
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=ErrorCode.USER_CREATION_FAILED)

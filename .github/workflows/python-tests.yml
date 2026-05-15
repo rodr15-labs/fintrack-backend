@@ -2,55 +2,116 @@ name: Python CI - Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 jobs:
-  # Verify if the self-hosted runner is working correctly in the Lenovo server
+
+  # ==========================================
+  # Verify self-hosted runner
+  # ==========================================
   check-server:
     runs-on: self-hosted
+
     steps:
       - name: Ping Lenovo
         run: echo "The runner is ready in the Lenovo server!"
 
-  # Execute test in a clean environment with postgress sql service
+      - name: Check Docker version
+        run: docker --version
+
+      - name: Check Docker Compose version
+        run: docker compose version
+
+  # ==========================================
+  # Run backend tests
+  # ==========================================
   test:
     runs-on: self-hosted
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: fintrack_db_psw
-          POSTGRES_DB: fintrack_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+
+    timeout-minutes: 15
 
     steps:
+
+      # --------------------------------------
+      # Checkout repository
+      # --------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      # --------------------------------------
+      # Setup Python
+      # --------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
+      # --------------------------------------
+      # Start PostgreSQL test container
+      # --------------------------------------
+      - name: Start PostgreSQL test container
+        run: |
+          docker compose --profile test up -d
+
+      # --------------------------------------
+      # Wait for PostgreSQL to be ready
+      # --------------------------------------
+      - name: Wait for PostgreSQL
+        run: |
+          sleep 10
+
+      # --------------------------------------
+      # Debug containers
+      # --------------------------------------
+      - name: Debug containers
+        run: |
+          docker ps
+
+      # --------------------------------------
+      # Install dependencies
+      # --------------------------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Pytest
+      # --------------------------------------
+      # Debug DATABASE_URL
+      # --------------------------------------
+      - name: Debug DATABASE_URL
         env:
-          DATABASE_URL: postgresql://admin:fintrack_db_psw@localhost:5432/fintrack_db
-          DB_USER: admin
-          DB_PASSWORD: fintrack_db_psw
-          DB_NAME: fintrack_db
+          TESTING: true
         run: |
-          pytest
+          python -c "from app.core.config import settings; print(settings.DATABASE_URL); print(settings.TESTING)"
+
+      # --------------------------------------
+      # Run Alembic migrations
+      # --------------------------------------
+      - name: Run migrations
+        env:
+          TESTING: true
+        run: |
+          PYTHONPATH=. alembic upgrade head
+
+      # --------------------------------------
+      # Run tests
+      # --------------------------------------
+      - name: Run tests
+        env:
+          TESTING: true
+        run: |
+          pytest -v
+
+      # --------------------------------------
+      # Cleanup containers and volumes
+      # --------------------------------------
+      - name: Stop containers
+        if: always()
+        run: |
+          docker compose --profile test down -v

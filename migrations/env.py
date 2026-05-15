@@ -1,9 +1,9 @@
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app.core.config import settings
 from app.db.base import Base
 
 # this is the Alembic Config object, which provides
@@ -23,12 +23,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    user = os.getenv("DB_USER", "admin")
-    password = os.getenv("DB_PASSWORD", "fintrack_db_psw")
-    server = os.getenv("DB_HOST", "localhost")
-    port = os.getenv("DB_PORT", "5432")
-    db = os.getenv("DB_NAME", "fintrack_db")
-    return f"postgresql://{user}:{password}@{server}:{port}/{db}"
+    return settings.DATABASE_URL
 
 
 def run_migrations_offline() -> None:
