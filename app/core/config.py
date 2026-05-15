@@ -1,19 +1,22 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ENV_FILE = ".env.test" if os.getenv("TESTING") == "true" else ".env"
 
 
 class Settings(BaseSettings):
-    ENV_FILE: str = ".env"
     TESTING: bool = False
     DB_USER: str = "admin"
     DB_PASSWORD: str = "fintrack_db_psw"
     DB_NAME: str = "fintrack_db"
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
+
     SECRET_KEY: str = "dev-secret-key"
     ALGORITHM: str = "HS256"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    MAX_PASSWORD_LENGTH: int = 72
 
     @property
     def database_name(self) -> str:
@@ -41,9 +44,8 @@ class Settings(BaseSettings):
         )
 
     model_config = SettingsConfigDict(
-        env_file=ENV_FILE,
         extra="ignore",
     )
 
 
-settings = Settings()
+settings = Settings(_env_file=ENV_FILE)

@@ -86,16 +86,14 @@ jobs:
       # --------------------------------------
       - name: Debug DATABASE_URL
         env:
-          ENV_FILE: .env.test
+          TESTING: true
         run: |
-          python -c "from app.core.config import settings; print(settings.DATABASE_URL)"
+          python -c "from app.core.config import settings; print(settings.DATABASE_URL); print(settings.TESTING)"
 
       # --------------------------------------
       # Run Alembic migrations
       # --------------------------------------
       - name: Run migrations
-        env:
-          ENV_FILE: .env.test
         run: |
           PYTHONPATH=. alembic upgrade head
 
@@ -104,7 +102,7 @@ jobs:
       # --------------------------------------
       - name: Run tests
         env:
-          ENV_FILE: .env.test
+          TESTING: true
         run: |
           pytest -v
 
@@ -114,4 +112,4 @@ jobs:
       - name: Stop containers
         if: always()
         run: |
-          docker compose down -v
+          docker compose --profile test down -v
