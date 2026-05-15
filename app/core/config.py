@@ -1,4 +1,8 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ENV_FILE = ".env.test" if os.getenv("TESTING") == "1" else ".env"
 
 
 class Settings(BaseSettings):
@@ -41,7 +45,7 @@ class Settings(BaseSettings):
         )
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_FILE,
         extra="ignore",
     )
 
